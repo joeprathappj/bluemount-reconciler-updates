@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V="1.0.1", SRC0="f0069414e573", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V="1.0.2", SRC0="2f3ce7a99073", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
   // Boot splash: while a stored update is being checked, hide the bundled page behind a spinner so it never flashes.
@@ -688,7 +688,7 @@ html.devmode,html.devmode body{overflow:hidden}
 @media (min-width:1000px) and (max-height:820px){.rsearch{min-height:36px}}
 @media (max-width:700px){.panel-head .toolbar:first-child{flex:1 1 100%;flex-wrap:wrap}.rsearch{flex:1 1 100%;width:auto}.panel-head .toolbar:first-child>label{display:none}.panel-head #statusFilter{flex:1 1 0;width:auto}#siteFilter{flex:0 0 112px;width:112px}.panel-head #exportBtn{width:100%;flex:1 1 100%}}
 .tbleft{display:flex;align-items:center;gap:8px;margin-right:auto;min-width:0}html.railc .tbleft{order:3;margin:0;flex-direction:column}html.railc .otastat{display:none!important}@media (max-width:999px){.topbar{left:20px;right:20px;top:12px}.wrap>.hero{padding-top:56px}}
-.invtip{position:fixed;z-index:60;max-width:min(440px,calc(100vw - 24px));max-height:min(60vh,380px);overflow:auto;background:var(--surface);color:var(--fg);border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;box-shadow:0 10px 28px rgba(0,0,0,.22);font-size:13px;line-height:1.55;text-align:left}.invtip b{display:block;margin-bottom:4px;font-weight:800}.invtip div{white-space:nowrap;padding:1px 0}td.hasinv{cursor:default}td.hasinv:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}td .pill{max-width:100%}.pill i{flex:none}td:nth-child(8){text-overflow:clip!important}th{white-space:normal!important;text-overflow:clip!important;line-height:1.25}</style>
+.invtip{position:fixed;z-index:60;max-width:min(440px,calc(100vw - 24px));max-height:min(60vh,380px);overflow:auto;background:var(--surface);color:var(--fg);border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;box-shadow:0 10px 28px rgba(0,0,0,.22);font-size:13px;line-height:1.55;text-align:left}.invtip b{display:block;margin-bottom:4px;font-weight:800}.invtip div{white-space:nowrap;padding:1px 0}td.hasinv{cursor:default}td.hasinv:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}td .pill{max-width:100%}.pill i{flex:none}@media (min-width:1500px){#statusFilter{flex:0 0 330px!important;width:330px!important}.panel-head .btn.primary{flex:none!important;max-width:none!important}}td:nth-child(8){text-overflow:clip!important}th{white-space:normal!important;text-overflow:clip!important;line-height:1.25}</style>
 <template id="mascotT">
 <svg class="mascot" viewBox="0 0 48 48" role="img" aria-label="Order Reconciliation logo">
   <rect class="mbg" x="2" y="2" width="44" height="44" rx="8"/>
@@ -773,7 +773,7 @@ var PAGE_SIZE = 10;
 var I18N = {
  en:{
   title:"Order Reconciliation",
-  heroP:"Reconcile Customer Open Orders, Bluemount Shipped Invoice and Bluemont Open Orders by PO and line. Files are processed in your App.",
+  heroP:"Reconcile Customer Open Orders, Bluemount Shipped Invoice and Bluemount Open Orders by PO and line. Files are processed in your App.",
   legendSummary:"Status definitions", infoAria:"Status definition", infoAll:"All statuses", infoAllHint:"Choose a status to see what it means.",
   privacy:"Processed locally in this App. No data is uploaded.",
   loaderSub:"Processing files locally.",
@@ -785,8 +785,8 @@ var I18N = {
   st_o_ship:"Open but invoiced", sd_o_ship:"Open on {C}, but invoices already exist on {B}. Our open orders are out of date.",
   st_o_noship:"Not on customer open orders", sd_o_noship:"Open in Bluemount system ({C}), not on the customer open order report ({A}), not shipped on {B}.",
   step1:"Step 1", step2:"Step 2", step3:"Step 3",
-  slotA:"Customer Open Orders", slotB:"Bluemount Shipped Invoice", slotC:"Bluemont Open Orders",
-  hintA:"Drop the Customer Open Orders file here, or browse.", hintB:"Drop the Bluemount Shipped Invoice file here, or browse.", hintC:"Drop the Bluemont Open Orders file here, or browse.",
+  slotA:"Customer Open Orders", slotB:"Bluemount Shipped Invoice", slotC:"Bluemount Open Orders",
+  hintA:"Drop the Customer Open Orders file here, or browse.", hintB:"Drop the Bluemount Shipped Invoice file here, or browse.", hintC:"Drop the Bluemount Open Orders file here, or browse.",
   gotIt:"Loaded · {n} rows", pick:"Select file", swap:"Replace file",
   col_po:"PO", col_ln:"line (LN)", col_open:"open quantity", col_qty:"quantity", col_inv:"invoice number", and:" and ",
   errSwap:"This looks like the {got} file (found: {cols}). Load it in the {got} slot instead.", errMissing1:"Required column not found in sheet \"{sheet}\": {cols}. Check that this is the correct file.",
@@ -812,12 +812,12 @@ var I18N = {
   m1:"Reading files", m2:"Matching PO and line numbers", m3:"Checking shipped invoices", m4:"Classifying results", m5:"Complete",
   n_blank:"{n} empty rows were ignored.",
   n_skip:"{n} rows without a PO or line number were excluded.",
-  n_sheetsA:"The Bluemont Open Orders file has {n} sheets ({list}). {x} orders appear on more than one sheet; the first sheet was used and the quantities agreed.",
-  n_sheetsD:"The Bluemont Open Orders file has {n} sheets ({list}). {x} orders appear on more than one sheet; the first sheet was used ({d} had different quantities).",
-  n_csum:"{n} duplicate lines in Bluemont Open Orders were summed.",
+  n_sheetsA:"The Bluemount Open Orders file has {n} sheets ({list}). {x} orders appear on more than one sheet; the first sheet was used and the quantities agreed.",
+  n_sheetsD:"The Bluemount Open Orders file has {n} sheets ({list}). {x} orders appear on more than one sheet; the first sheet was used ({d} had different quantities).",
+  n_csum:"{n} duplicate lines in Bluemount Open Orders were summed.",
   n_adup:"{n} duplicate lines in Customer Open Orders were summed.",
   n_bdup:"{n} invoice lines were additional shipments of an order line already shipped and were summed.",
-  n_nooverlap:"No PO and line numbers are shared between Customer Open Orders and Bluemont Open Orders. Check that the correct files were loaded.", n_bonly:"{n} shipped lines are not open on either list and were excluded.",
+  n_nooverlap:"No PO and line numbers are shared between Customer Open Orders and Bluemount Open Orders. Check that the correct files were loaded.", n_bonly:"{n} shipped lines are not open on either list and were excluded.",
   x_po:"PO", x_ln:"LN", x_key:"PO-LN", x_site:"Site", x_status:"Status", x_cust:"Customer open qty", x_ours:"Bluemount open qty", x_diff:"Open difference", x_shipq:"Shipped qty", x_invc:"Invoice count", x_lastno:"Last invoice no", x_lastdt:"Last invoice date", x_all:"All invoices",
   s_export:"Export", s_everything:"All", s_rows:"Rows exported", s_gen:"Generated", s_status:"Status", s_count:"Rows (all data)", s_total:"Total", s_checks:"Checks", sheetMerged:"Merged", sheetSummary:"Summary",
   saved:"Exported {f}", cancelled:"Export cancelled. No file was saved.", failed:"Export failed: {m}", unavailable:"unavailable"
@@ -1715,7 +1715,7 @@ window.__recon = {state:state, merge:merge, parseFile:parseFile};
       var arrow = dv.sortK===k ? (dv.sortD>0?' ▲':' ▼') : '';
       return el('th',{class:cls||'','aria-sort':dv.sortK===k?(dv.sortD>0?'ascending':'descending'):'none'},[ el('button',{type:'button',text:label+arrow,onclick:function(){ if(dv.sortK===k) dv.sortD*=-1; else {dv.sortK=k;dv.sortD=1;} renderDev(); }}) ]);
     }
-    var thead=el('thead',{},[el('tr',{},[ el('th',{style:'width:44px'},[hcb]), th('PO · Line','po'), el('th',{class:'num',text:'Customer'}), el('th',{class:'num',text:'Bluemont'}), th('Shipped','shipped','num'), th('Status','status'), th('Last invoice','date'), el('th',{class:'num',text:'Actions',style:'width:150px'}) ])]);
+    var thead=el('thead',{},[el('tr',{},[ el('th',{style:'width:44px'},[hcb]), th('PO · Line','po'), el('th',{class:'num',text:'Customer'}), el('th',{class:'num',text:'Bluemount'}), th('Shipped','shipped','num'), th('Status','status'), th('Last invoice','date'), el('th',{class:'num',text:'Actions',style:'width:150px'}) ])]);
     var tb=el('tbody');
     slice.forEach(function(r){
       var cb=el('input',{type:'checkbox','aria-label':'Select '+r.po+'-'+r.ln,onchange:function(){dv.sel[r.key]=this.checked;renderDev();}}); cb.checked=!!dv.sel[r.key];
