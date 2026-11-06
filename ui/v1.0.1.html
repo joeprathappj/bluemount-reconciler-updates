@@ -3,10 +3,20 @@
   var V="1.0.1", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
-  function nv(v){ v=String(v==null?'0.0.0':v); return /^\d+$/.test(v)?'0.0.'+v:v; }
-  function cmp(a,b){ a=nv(a).split('.'); b=nv(b).split('.'); for(var i=0;i<3;i++){ var d=(+a[i]||0)-(+b[i]||0); if(d) return d; } return 0; }
-  function mx(){ var r='0.0.0'; for(var i=0;i<arguments.length;i++){ var x=arguments[i]; if(x!=null && cmp(x,r)>0) r=nv(x); } return r; }
-  var SW=window.__OTA_SWAPPED||null, CUR=mx(V,SW);
+  // Boot splash: while a stored update is being checked, hide the bundled page behind a spinner so it never flashes.
+  var booted=false;
+  function unboot(){ if(!booted) return; booted=false; var d=document.documentElement; d.classList.remove('ota-boot'); var e=document.getElementById('ota-boot-css'); if(e) e.remove(); }
+  try{
+    if(!window.__OTA_SWAPPED && localStorage.getItem('otaStored')==='1'){
+      var bs=document.createElement('style'); bs.id='ota-boot-css';
+      bs.textContent='html.ota-boot{background:#161B2E!important}html.ota-boot body{visibility:hidden!important}html.ota-boot::after{content:"";position:fixed;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid rgba(255,255,255,.2);border-top-color:#F7B71E;border-radius:50%;animation:otaspin .8s linear infinite;z-index:2147483647}@keyframes otaspin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(bs); document.documentElement.classList.add('ota-boot'); booted=true;
+      setTimeout(unboot,1500);
+    }
+  }catch(e){}
+  // BASEV = version of the installed (bundled) build; a stored update is only valid for the build it was downloaded against
+  if(!window.__OTA_BASE) window.__OTA_BASE=V;
+  var BASEV=window.__OTA_BASE, SW=window.__OTA_SWAPPED||null, CUR=SW||V;
   var st={text:'v'+CUR,title:'UI version '+CUR,cb:null,cls:''};
   function paint(){
     var t=document.querySelector('.tbleft'); if(!t) return;
@@ -21,7 +31,7 @@
   var enc=new TextEncoder();
   function idb(){ return new Promise(function(res,rej){ var r=indexedDB.open('ota',1); r.onupgradeneeded=function(){ r.result.createObjectStore('kv'); }; r.onsuccess=function(){ res(r.result); }; r.onerror=function(){ rej(r.error); }; }); }
   function get(k){ return idb().then(function(db){ return new Promise(function(res,rej){ var q=db.transaction('kv').objectStore('kv').get(k); q.onsuccess=function(){ res(q.result); }; q.onerror=function(){ rej(q.error); }; }); }); }
-  function put(k,v){ return idb().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction('kv','readwrite'); tx.objectStore('kv').put(v,k); tx.oncomplete=function(){ res(); }; tx.onerror=function(){ rej(tx.error); }; }); }); }
+  function put(k,v){ return idb().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction('kv','readwrite'); tx.objectStore('kv').put(v,k); tx.oncomplete=function(){ try{ if(k==='ui') localStorage.setItem('otaStored',v?'1':'0'); }catch(e){} res(); }; tx.onerror=function(){ rej(tx.error); }; }); }); }
   function hex(b){ return Array.prototype.map.call(new Uint8Array(b),function(x){ return ('0'+x.toString(16)).slice(-2); }).join(''); }
   function sha(t){ return crypto.subtle.digest('SHA-256',enc.encode(t)).then(hex); }
   function b64(s){ var b=atob(s), a=new Uint8Array(b.length); for(var i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }
@@ -33,7 +43,7 @@
       return crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},k,b64(r.sig),enc.encode(r.version+':'+r.sha));
     }).then(function(ok){ if(!ok) throw new Error('bad signature'); });
   }
-  function swap(r){ window.__OTA_SWAPPED=r.version; document.open(); document.write(r.html); document.close(); }
+  function swap(r){ window.__OTA_SWAPPED=r.version; window.__OTA_SHA=r.sha; document.open(); document.write(r.html); document.close(); }
   function toast(m){ try{ if(typeof xToast==='function') xToast(m,'ok'); }catch(e){} }
   function kb(n){ return n>=1048576?(n/1048576).toFixed(1)+' MB':Math.round(n/1024)+' KB'; }
   function manifest(){
@@ -55,16 +65,15 @@
       return pump();
     });
   }
-  function check(cached){
-    var have=mx(V,SW,cached?cached.version:null);
-    if(cached && cmp(cached.version,CUR)>0){ ready(cached.version); return Promise.resolve(); }
+  function check(){
     return manifest().then(function(m){
-      if(!(cmp(m.version,have)>0)){ stat('v'+CUR+' ✓','UI v'+CUR+' is up to date (latest published: v'+m.version+')'); return; }
+      // anything different from what is running (newer, older after a reset, or re-published) is applied
+      if(m.version===CUR && (!window.__OTA_SHA || window.__OTA_SHA===m.sha256)){ stat('v'+CUR+' ✓','UI v'+CUR+' is up to date (latest published: v'+m.version+')'); return; }
       stat('↓ 0%','Downloading v'+m.version);
       return download(m).then(function(html){
-        var rec={version:m.version,sha:m.sha256,sig:m.sig,html:html};
+        var rec={version:m.version,sha:m.sha256,sig:m.sig,html:html,ok:false,base:BASEV};
         stat('Verifying…','Checking the signature of v'+m.version);
-        return verify(rec).then(function(){ return put('ui',rec); }).then(function(){ ready(rec.version); toast('Update v'+rec.version+' downloaded.'); });
+        return verify(rec).then(function(){ rec.ok=true; return put('ui',rec); }).then(function(){ ready(rec.version); toast('Update v'+rec.version+' downloaded.'); });
       });
     });
   }
@@ -73,11 +82,15 @@
     stat('v'+v+' ready · restart','Click to reload with the new version (your loaded files will be cleared)',function(){ location.reload(); });
   }
   get('ui').catch(function(){ return null; }).then(function(c){
-    if(!SW && c && cmp(c.version,V)>0){
-      return verify(c).then(function(){ swap(c); }, function(){ return put('ui',null).then(function(){ return check(null); }); });
+    if(!SW && c && c.base!==BASEV){ c=null; return put('ui',null).then(function(){ return c; }); } // bundle changed (reinstall) or old-format record
+    return c;
+  }).then(function(c){
+    if(!SW && c){
+      return (c.ok?Promise.resolve():verify(c)).then(function(){ swap(c); }, function(){ unboot(); return put('ui',null).then(function(){ return check(); }); });
     }
-    return new Promise(function(r){ setTimeout(r,300); }).then(function(){ return check(c); });
-  }).catch(function(e){ var m=(e&&e.message)||String(e); stat('v'+CUR+' ⚠','Update check failed: '+m,null,'err'); try{ console.warn('OTA update check failed',e); }catch(x){} });
+    unboot();
+    return new Promise(function(r){ setTimeout(r,300); }).then(check);
+  }).catch(function(e){ unboot(); var m=(e&&e.message)||String(e); stat('v'+CUR+' ⚠','Update check failed: '+m,null,'err'); try{ console.warn('OTA update check failed',e); }catch(x){} });
 })();
 /*OTA-END*/
 </script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Order Reconciler</title>
