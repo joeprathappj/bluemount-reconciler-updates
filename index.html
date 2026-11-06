@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V="1.0.1", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V="1.0.0", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
   // Boot splash: while a stored update is being checked, hide the bundled page behind a spinner so it never flashes.
@@ -776,12 +776,12 @@ var I18N = {
   privacy:"Processed locally in this App. No data is uploaded.",
   loaderSub:"Processing files locally.",
   mascotAlt:"Order Reconciliation logo",
-  st_matched:"Pending", sd_matched:"Open on both lists with the same quantity. Not yet shipped.",
-  st_qtydiff:"Quantity mismatch", sd_qtydiff:"Present in both lists with different open quantities.",
-  st_c_ship:"Shipped", sd_c_ship:"Invoiced and shipped. Not open on our side, or still open but already invoiced; treat as shipped.",
-  st_c_noship:"Missing", sd_c_noship:"Missed by Bluemount based on customer orders.",
-  st_o_ship:"Open but invoiced", sd_o_ship:"Open in our system, but invoices already exist. Our open orders are out of date.",
-  st_o_noship:"Not on customer orders", sd_o_noship:"Open in Bluemount system, not on the customer open order report, not shipped.",
+  st_matched:"Pending", sd_matched:"Open on both {A} and {C} with the same quantity. Not yet shipped on {B}.",
+  st_qtydiff:"Quantity mismatch", sd_qtydiff:"Present in both {A} and {C}, but with different open quantities.",
+  st_c_ship:"Shipped", sd_c_ship:"Invoiced and shipped on {B}. Not open on {C}, or still open there but already invoiced; treat as shipped.",
+  st_c_noship:"Missing", sd_c_noship:"Missed by Bluemount based on customer orders: open on {A}, but not on {C} and not shipped on {B}.",
+  st_o_ship:"Open but invoiced", sd_o_ship:"Open on {C}, but invoices already exist on {B}. Our open orders are out of date.",
+  st_o_noship:"Not on customer open orders", sd_o_noship:"Open in Bluemount system ({C}), not on the customer open order report ({A}), not shipped on {B}.",
   step1:"Step 1", step2:"Step 2", step3:"Step 3",
   slotA:"Customer Open Orders", slotB:"Bluemount Shipped Invoice", slotC:"Bluemont Open Orders",
   hintA:"Drop the Customer Open Orders file here, or browse.", hintB:"Drop the Bluemount Shipped Invoice file here, or browse.", hintC:"Drop the Bluemont Open Orders file here, or browse.",
@@ -801,7 +801,7 @@ var I18N = {
   showMe:"Status", everything:"All statuses ({n})",
   dlAll:"Export all {n} rows", dlOne:"Export “{label}” · {n} {rows}",
   row1:"row", rowN:"rows",
-  h_po:"PO number", h_ln:"Line", h_site:"Site", h_cust:"Customer qty", h_ours:"Bluemont qty", h_ship:"Shipped qty", h_inv:"Latest invoice", h_res:"Status",
+  h_po:"PO number", h_ln:"Line", h_site:"Site", h_cust:"Customer qty", h_ours:"Bluemount qty", h_ship:"Shipped qty", h_inv:"Latest invoice", h_res:"Status",
   invMore:"(+{n} more)",
   nothing:"No rows in this status.",
   showing:"Showing {a}–{b} of {n}", back:"Back", next:"Next", pageOf:"Page {p} of {n}",
@@ -816,7 +816,7 @@ var I18N = {
   n_adup:"{n} duplicate lines in Customer Open Orders were summed.",
   n_bdup:"{n} invoice lines were additional shipments of an order line already shipped and were summed.",
   n_nooverlap:"No PO and line numbers are shared between Customer Open Orders and Bluemont Open Orders. Check that the correct files were loaded.", n_bonly:"{n} shipped lines are not open on either list and were excluded.",
-  x_po:"PO", x_ln:"LN", x_key:"PO-LN", x_site:"Site", x_status:"Status", x_cust:"Customer open qty", x_ours:"Bluemont open qty", x_diff:"Open difference", x_shipq:"Shipped qty", x_invc:"Invoice count", x_lastno:"Last invoice no", x_lastdt:"Last invoice date", x_all:"All invoices",
+  x_po:"PO", x_ln:"LN", x_key:"PO-LN", x_site:"Site", x_status:"Status", x_cust:"Customer open qty", x_ours:"Bluemount open qty", x_diff:"Open difference", x_shipq:"Shipped qty", x_invc:"Invoice count", x_lastno:"Last invoice no", x_lastdt:"Last invoice date", x_all:"All invoices",
   s_export:"Export", s_everything:"All", s_rows:"Rows exported", s_gen:"Generated", s_status:"Status", s_count:"Rows (all data)", s_total:"Total", s_checks:"Checks", sheetMerged:"Merged", sheetSummary:"Summary",
   saved:"Exported {f}", cancelled:"Export cancelled. No file was saved.", failed:"Export failed: {m}", unavailable:"unavailable"
  }
@@ -828,7 +828,17 @@ function t(key, vars){
   return s;
 }
 function stLabel(id){ return t('st_'+id); }
-function stDesc(id){ return t('sd_'+id); }
+function slotName(k){ var f=state.files&&state.files[k]; return (f&&f.name)?f.name:t('slot'+k); }
+function stDesc(id){ return t('sd_'+id).replace(/\{([ABC])\}/g,function(m,k){ return slotName(k); }); }
+function stDescNode(id){
+  var wrap=document.createElement('span');
+  t('sd_'+id).split(/(\{[ABC]\})/).forEach(function(p){
+    var m=/^\{([ABC])\}$/.exec(p);
+    if(m){ var b=document.createElement('b'), i=document.createElement('i'); i.textContent=slotName(m[1]); b.appendChild(i); wrap.appendChild(b); }
+    else if(p) wrap.appendChild(document.createTextNode(p));
+  });
+  return wrap;
+}
 function errText(e){
   if(!e) return '';
   if(e.k==='errMissing') return t(e.v.miss.length>1?'errMissingN':'errMissing1',{cols:e.v.miss.map(function(c){return t('col_'+c);}).join(t('and')), sheet:e.v.sheet});
@@ -1176,7 +1186,7 @@ function statusInfo(M, id){
     STATUSES.forEach(function(s){ tip.appendChild(el('div',{class:'tip-r'},[ pill(s.id), el('span',{class:'tip-n',text:String(M.counts[s.id]||0)}) ])); });
   } else {
     tip.appendChild(el('div',{class:'tip-h'},[ pill(id), el('span',{class:'tip-n',text:M.counts[id]+' '+rowsWord(M.counts[id])}) ]));
-    tip.appendChild(el('div',{class:'tip-p',text:stDesc(id)}));
+    tip.appendChild(el('div',{class:'tip-p'},[stDescNode(id)]));
   }
   btn.addEventListener('click', function(e){ e.stopPropagation(); box.classList.toggle('open'); });
   btn.addEventListener('keydown', function(e){ if(e.key==='Escape') box.classList.remove('open'); });
@@ -1332,10 +1342,8 @@ function renderLegend(){
   var g = document.getElementById('legendGrid'); g.textContent='';
   STATUSES.forEach(function(s){
     g.appendChild(el('span',{},[ el('span',{class:'pill '+s.cls},[el('i'), stLabel(s.id)]) ]));
-    g.appendChild(el('span',{class:'t',text:stDesc(s.id)}));
+    g.appendChild(el('span',{class:'t'},[stDescNode(s.id)]));
   });
-  g.appendChild(el('span',{},[ el('span',{class:'pill p-neutral'},[el('i'), t('howMatch')]) ]));
-  g.appendChild(el('span',{class:'t',text:t('howMatchD')}));
 }
 
 /* ---------- loading ---------- */
@@ -1379,6 +1387,7 @@ function showLoader(done){
   loadTimer = setTimeout(function(){ clearInterval(msgTimer); L.hidden = true; done(); }, dur);
 }
 function refresh(){
+  renderLegend();
   var f = state.files;
   var ready = ['A','B','C'].every(function(k){return f[k]&&!f[k].error;});
   state.page = 1;
@@ -1645,7 +1654,7 @@ window.__recon = {state:state, merge:merge, parseFile:parseFile};
     setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000); toast('Saved '+filename);
   }
   function exportRows(rows){
-    var aoa=[['PO','Line','Site','Customer qty','Bluemont qty','Shipped qty','Latest invoice','Invoice date','Status'].map(function(h){return {v:h,s:XSTYLE.head};})];
+    var aoa=[['PO','Line','Site','Customer qty','Bluemount qty','Shipped qty','Latest invoice','Invoice date','Status'].map(function(h){return {v:h,s:XSTYLE.head};})];
     rows.forEach(function(r){ var mm=r.status==='qtydiff'?XSTYLE.warn:0; aoa.push(tintRow([r.po,r.ln,r.site||'',{v:r.custOpen==null?'':r.custOpen,s:mm},{v:r.ourOpen==null?'':r.ourOpen,s:mm},r.shipped||0,r.lastInv||'',r.lastDate?iso(r.lastDate):'',{v:stLabel(r.status),s:ST_XSTYLE[r.status]||0}],r.status)); });
     save(buildXlsx([{name:'Selected',cols:[13,7,9,15,14,13,17,15,30],rows:aoa,freeze:true,filter:'A1:I'+aoa.length}]),'orders_selected_'+new Date(Date.now()+19800000).toISOString().slice(0,10)+'.xlsx');
   }
