@@ -1,8 +1,8 @@
 {
-  "version": "1.0.0",
-  "sha256": "8c43477fcd34ff7595f46c619f80dcc4beee60af7a478a0c63132e9f59cbfa4b",
-  "sig": "U0IdVtD5BhPonVFlKeDp2J8C5vkV1IY5h5IGKooTGvmIpAcT1p8ecxtd611oz1PtaukKN2DlULuWzgQDdTogQQ==",
-  "file": "ui/v1.0.0.html",
+  "version": "1.0.1",
+  "sha256": "3819ba171566f4a29cf6007bad1f148851f8bccf4338eed409bc63906191041f",
+  "sig": "ASM2p763rP/7C6Rruuwb6ksR6TSoP7HMSibYL/M1x+dKr4aA1qrev4s1xK/mNIpiEqRsU63diiq4hf3trgGR5A==",
+  "file": "ui/v1.0.1.html",
   "bytes": 1164041,
-  "published": "2026-11-06T10:34:11.505Z"
+  "published": "2026-11-06T10:34:40.820Z"
 }
