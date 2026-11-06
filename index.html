@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V=11, BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V=12, BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
   var SW=window.__OTA_SWAPPED||0, CUR=Math.max(V,SW);
@@ -32,25 +32,48 @@
   }
   function swap(r){ window.__OTA_SWAPPED=r.version; document.open(); document.write(r.html); document.close(); }
   function toast(m){ try{ if(typeof xToast==='function') xToast(m,'ok'); }catch(e){} }
+  function kb(n){ return n>=1048576?(n/1048576).toFixed(1)+' MB':Math.round(n/1024)+' KB'; }
+  function manifest(){
+    return fetch(API+'version.json?ref=main&t='+Date.now(),{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'}}).then(function(r){ if(!r.ok) throw new Error('api '+r.status); return r.json(); })
+      .catch(function(){ return fetch(BASE+'version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('server answered '+r.status); return r.json(); }); });
+  }
+  function download(m){
+    var url=BASE+(m.file||'index.html')+'?v='+m.version;
+    return fetch(url,{cache:'no-store'}).then(function(r){
+      if(!r.ok) throw new Error('server answered '+r.status);
+      var total=m.bytes||0, got=0, chunks=[], last=0;
+      if(!r.body||!r.body.getReader) return r.text();
+      var rd=r.body.getReader();
+      function pump(){ return rd.read().then(function(x){
+        if(x.done){ var all=new Uint8Array(got), o=0; chunks.forEach(function(c){ all.set(c,o); o+=c.length; }); return new TextDecoder().decode(all); }
+        chunks.push(x.value); got+=x.value.length;
+        var now=Date.now(); if(now-last>80){ last=now; stat('Downloading v'+m.version+'… '+(total?Math.min(99,Math.round(got*100/total))+'% · ':'')+kb(got)+(total?' / '+kb(total):''),'Downloading UI update'); }
+        return pump(); }); }
+      return pump();
+    });
+  }
   function check(cached){
     var have=Math.max(V,SW,cached?cached.version:0);
     if(cached && cached.version>CUR){ ready(cached.version); return Promise.resolve(); }
-    return fetch(BASE+'version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('server answered '+r.status); return r.json(); }).then(function(m){
+    return manifest().then(function(m){
       if(!(m.version>have)){ stat('v'+CUR+' · up to date','UI is up to date (latest published: v'+m.version+')'); return; }
       stat('Downloading v'+m.version+'…','Downloading UI update');
-      return fetch(BASE+'index.html?v='+m.version,{cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('server answered '+r.status); return r.text(); }).then(function(html){
+      return download(m).then(function(html){
         var rec={version:m.version,sha:m.sha256,sig:m.sig,html:html};
         stat('Verifying v'+m.version+'…','Checking signature');
-        return verify(rec).then(function(){ return put('ui',rec); }).then(function(){ ready(rec.version); toast('Update v'+rec.version+' downloaded. Restart the app to use it.'); });
+        return verify(rec).then(function(){ return put('ui',rec); }).then(function(){ ready(rec.version); toast('Update v'+rec.version+' downloaded.'); });
       });
     });
   }
-  function ready(v){ stat('Update v'+v+' ready · click to restart','Click to reload with the new version',function(){ location.reload(); }); }
+  function ready(v){
+    if(!document.getElementById('statusFilter')){ stat('Applying v'+v+'…','Restarting with the new version'); setTimeout(function(){ location.reload(); },700); return; }
+    stat('Update v'+v+' ready · click to restart','Click to reload with the new version (your loaded files will be cleared)',function(){ location.reload(); });
+  }
   get('ui').catch(function(){ return null; }).then(function(c){
     if(!SW && c && c.version>V){
       return verify(c).then(function(){ swap(c); }, function(){ return put('ui',null).then(function(){ return check(null); }); });
     }
-    return new Promise(function(r){ setTimeout(r,1500); }).then(function(){ return check(c); });
+    return new Promise(function(r){ setTimeout(r,300); }).then(function(){ return check(c); });
   }).catch(function(e){ var m=(e&&e.message)||String(e); stat('v'+CUR+' · update check failed','Update check failed: '+m,null,'err'); try{ console.warn('OTA update check failed',e); }catch(x){} });
 })();
 /*OTA-END*/
