@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V="1.0.0", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V="1.0.1", SRC0="f0069414e573", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
   // Boot splash: while a stored update is being checked, hide the bundled page behind a spinner so it never flashes.
@@ -16,7 +16,7 @@
   }catch(e){}
   // BASEV = version of the installed (bundled) build; a stored update is only valid for the build it was downloaded against
   if(!window.__OTA_BASE) window.__OTA_BASE=V;
-  var BASEV=window.__OTA_BASE, SW=window.__OTA_SWAPPED||null, CUR=SW||V;
+  var BASEV=window.__OTA_BASE, SW=window.__OTA_SWAPPED||null, CUR=SW||V, RUNSRC=window.__OTA_SRC||SRC0;
   var st={text:'v'+CUR,title:'UI version '+CUR,cb:null,cls:''};
   function paint(){
     var t=document.querySelector('.tbleft'); if(!t) return;
@@ -43,7 +43,7 @@
       return crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},k,b64(r.sig),enc.encode(r.version+':'+r.sha));
     }).then(function(ok){ if(!ok) throw new Error('bad signature'); });
   }
-  function swap(r){ window.__OTA_SWAPPED=r.version; window.__OTA_SHA=r.sha; document.open(); document.write(r.html); document.close(); }
+  function swap(r){ window.__OTA_SWAPPED=r.version; window.__OTA_SHA=r.sha; window.__OTA_SRC=r.src||''; document.open(); document.write(r.html); document.close(); }
   function toast(m){ try{ if(typeof xToast==='function') xToast(m,'ok'); }catch(e){} }
   function kb(n){ return n>=1048576?(n/1048576).toFixed(1)+' MB':Math.round(n/1024)+' KB'; }
   function manifest(){
@@ -68,11 +68,11 @@
   function check(){
     return manifest().then(function(m){
       // anything different from what is running (newer, older after a reset, or re-published) is applied
-      if(m.version===CUR && (!window.__OTA_SHA || window.__OTA_SHA===m.sha256)){ stat('v'+CUR+' ✓','UI v'+CUR+' is up to date (latest published: v'+m.version+')'); return; }
+      if(m.version===CUR && (m.src ? m.src===RUNSRC : (!window.__OTA_SHA || window.__OTA_SHA===m.sha256))){ stat('v'+CUR+' ✓','UI v'+CUR+' is up to date (latest published: v'+m.version+')'); return; }
       stat('↓ 0%','Downloading v'+m.version);
       // the raw CDN can serve a stale copy for a few minutes: on a checksum mismatch fetch it again through the API
       return download(m,false).then(function(html){ return sha(html).then(function(h){ return h===m.sha256?html:download(m,true); }); }).then(function(html){
-        var rec={version:m.version,sha:m.sha256,sig:m.sig,html:html,ok:false,base:BASEV};
+        var rec={version:m.version,sha:m.sha256,sig:m.sig,html:html,ok:false,base:BASEV,src:m.src||''};
         stat('Verifying…','Checking the signature of v'+m.version);
         return verify(rec).then(function(){ rec.ok=true; return put('ui',rec); }).then(function(){ ready(rec.version); toast('Update v'+rec.version+' downloaded.'); });
       });
@@ -830,7 +830,7 @@ function t(key, vars){
   return s;
 }
 function stLabel(id){ return t('st_'+id); }
-function slotName(k){ var f=state.files&&state.files[k]; return (f&&f.name)?f.name:t('slot'+k); }
+function slotName(k){ return t('slot'+k); }
 function stDesc(id){ return t('sd_'+id).replace(/\{([ABC])\}/g,function(m,k){ return slotName(k); }); }
 function stDescNode(id){
   var wrap=document.createElement('span');
