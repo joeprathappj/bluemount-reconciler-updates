@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V=4, BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V=5, BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   function showVer(v){ function go(){ var r=document.getElementById('resetBtn'), t=document.querySelector('.titlerow'); if(r) r.title='Reset (reload the page) \u00B7 UI v'+v; if(t && !t.querySelector('.uiver')){ var s=document.createElement('span'); s.className='uiver'; s.textContent='v'+v; s.title='UI version'; s.style.cssText='font-size:11.5px;font-weight:700;opacity:.8;color:var(--rail-muted,#aab);align-self:center;white-space:nowrap'; t.appendChild(s); } } if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',go); else go(); }
   if(window.__OTA_SWAPPED){ showVer(window.__OTA_SWAPPED); return; }
@@ -1349,6 +1349,7 @@ function refresh(){
 /* ---------- colour-coded Excel writer (cell fill + text colour, no symbols) ---------- */
 var XSTYLE = {def:0, head:1, ok:2, warn:3, bad:4, neu:5, bold:6, wrap:7, pend:8};
 var _xt=null,_xtT=0;
+window.xToast = xToast;
 function xToast(msg,kind){
   if(!_xt){ _xt=document.createElement('div'); _xt.setAttribute('role','status'); _xt.setAttribute('aria-live','polite'); document.body.appendChild(_xt); }
   _xt.className='xtoast'+(kind==='err'?' err':''); _xt.innerHTML='<i>'+(kind==='err'?'!':'\u2713')+'</i><span></span>'; _xt.lastChild.textContent=msg;
