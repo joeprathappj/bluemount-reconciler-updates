@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V=5, BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V=6, BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   function showVer(v){ function go(){ var r=document.getElementById('resetBtn'), t=document.querySelector('.titlerow'); if(r) r.title='Reset (reload the page) \u00B7 UI v'+v; if(t && !t.querySelector('.uiver')){ var s=document.createElement('span'); s.className='uiver'; s.textContent='v'+v; s.title='UI version'; s.style.cssText='font-size:11.5px;font-weight:700;opacity:.8;color:var(--rail-muted,#aab);align-self:center;white-space:nowrap'; t.appendChild(s); } } if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',go); else go(); }
   if(window.__OTA_SWAPPED){ showVer(window.__OTA_SWAPPED); return; }
