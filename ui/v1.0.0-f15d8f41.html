@@ -50,9 +50,9 @@
     return fetch(API+'version.json?ref=main&t='+Date.now(),{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'}}).then(function(r){ if(!r.ok) throw new Error('api '+r.status); return r.json(); })
       .catch(function(){ return fetch(BASE+'version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('server answered '+r.status); return r.json(); }); });
   }
-  function download(m){
-    var url=BASE+(m.file||'index.html')+'?v='+m.version;
-    return fetch(url,{cache:'no-store'}).then(function(r){
+  function download(m,viaApi){
+    var url=viaApi?API+(m.file||'index.html')+'?ref=main&t='+Date.now():BASE+(m.file||'index.html')+'?v='+m.version+'-'+String(m.sha256).slice(0,8);
+    return fetch(url,viaApi?{cache:'no-store',headers:{Accept:'application/vnd.github.raw+json'}}:{cache:'no-store'}).then(function(r){
       if(!r.ok) throw new Error('server answered '+r.status);
       var total=m.bytes||0, got=0, chunks=[], last=0;
       if(!r.body||!r.body.getReader) return r.text();
@@ -70,7 +70,8 @@
       // anything different from what is running (newer, older after a reset, or re-published) is applied
       if(m.version===CUR && (!window.__OTA_SHA || window.__OTA_SHA===m.sha256)){ stat('v'+CUR+' ✓','UI v'+CUR+' is up to date (latest published: v'+m.version+')'); return; }
       stat('↓ 0%','Downloading v'+m.version);
-      return download(m).then(function(html){
+      // the raw CDN can serve a stale copy for a few minutes: on a checksum mismatch fetch it again through the API
+      return download(m,false).then(function(html){ return sha(html).then(function(h){ return h===m.sha256?html:download(m,true); }); }).then(function(html){
         var rec={version:m.version,sha:m.sha256,sig:m.sig,html:html,ok:false,base:BASEV};
         stat('Verifying…','Checking the signature of v'+m.version);
         return verify(rec).then(function(){ rec.ok=true; return put('ui',rec); }).then(function(){ ready(rec.version); toast('Update v'+rec.version+' downloaded.'); });
@@ -687,7 +688,7 @@ html.devmode,html.devmode body{overflow:hidden}
 @media (min-width:1000px) and (max-height:820px){.rsearch{min-height:36px}}
 @media (max-width:700px){.panel-head .toolbar:first-child{flex:1 1 100%;flex-wrap:wrap}.rsearch{flex:1 1 100%;width:auto}.panel-head .toolbar:first-child>label{display:none}.panel-head #statusFilter{flex:1 1 0;width:auto}#siteFilter{flex:0 0 112px;width:112px}.panel-head #exportBtn{width:100%;flex:1 1 100%}}
 .tbleft{display:flex;align-items:center;gap:8px;margin-right:auto;min-width:0}html.railc .tbleft{order:3;margin:0;flex-direction:column}html.railc .otastat{display:none!important}@media (max-width:999px){.topbar{left:20px;right:20px;top:12px}.wrap>.hero{padding-top:56px}}
-</style>
+.invtip{position:fixed;z-index:60;max-width:min(440px,calc(100vw - 24px));max-height:min(60vh,380px);overflow:auto;background:var(--surface);color:var(--fg);border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;box-shadow:0 10px 28px rgba(0,0,0,.22);font-size:13px;line-height:1.55;text-align:left}.invtip b{display:block;margin-bottom:4px;font-weight:800}.invtip div{white-space:nowrap;padding:1px 0}td.hasinv{cursor:default}td.hasinv:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}td .pill{max-width:100%}.pill i{flex:none}td:nth-child(8){text-overflow:clip!important}th{white-space:normal!important;text-overflow:clip!important;line-height:1.25}</style>
 <template id="mascotT">
 <svg class="mascot" viewBox="0 0 48 48" role="img" aria-label="Order Reconciliation logo">
   <rect class="mbg" x="2" y="2" width="44" height="44" rx="8"/>
@@ -698,6 +699,7 @@ html.devmode,html.devmode body{overflow:hidden}
 </template>
 
 <div id="devPage" hidden></div>
+<script>(function(){var tip=null,cur=null,tm=0;function hide(){clearTimeout(tm);if(tip){tip.remove();tip=null;}cur=null;}function later(){clearTimeout(tm);tm=setTimeout(hide,160);}function show(td){clearTimeout(tm);if(cur===td&&tip)return;hide();cur=td;var list=(td.getAttribute("data-inv")||"").split("; ").filter(Boolean);tip=document.createElement("div");tip.className="invtip";tip.setAttribute("role","tooltip");var h=document.createElement("b");h.textContent=(list.length===1?"1 invoice":list.length+" invoices");tip.appendChild(h);list.forEach(function(x){var d=document.createElement("div");d.textContent=x;tip.appendChild(d);});tip.addEventListener("mouseenter",function(){clearTimeout(tm);});tip.addEventListener("mouseleave",later);document.body.appendChild(tip);var r=td.getBoundingClientRect(),w=tip.offsetWidth,hh=tip.offsetHeight;var x=Math.max(8,Math.min(r.left,innerWidth-w-8));var y=r.bottom-1;if(y+hh>innerHeight-8&&r.top-hh>8)y=r.top-hh+1;tip.style.left=x+"px";tip.style.top=Math.max(8,y)+"px";}document.addEventListener("mouseover",function(e){if(!window.matchMedia("(hover:hover)").matches)return;var td=e.target.closest&&e.target.closest("td.hasinv");if(td)show(td);});document.addEventListener("mouseout",function(e){var td=e.target.closest&&e.target.closest("td.hasinv");if(td&&!(e.relatedTarget&&tip&&tip.contains(e.relatedTarget)))later();});document.addEventListener("focusin",function(e){var td=e.target.closest&&e.target.closest("td.hasinv");if(td)show(td);});document.addEventListener("focusout",function(e){if(e.target.closest&&e.target.closest("td.hasinv"))later();});document.addEventListener("keydown",function(e){if(e.key==="Escape")hide();});window.addEventListener("scroll",hide,true);})()</script>
 <script>document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#resetBtn");if(b)location.reload();});</script>
 <div class="wrap">
   <div class="topbar"><div class="tbleft"><button class="btn iconbtn resetbtn" id="resetBtn" type="button" title="Reset (reload the page)" aria-label="Reset and reload the page"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button></div><button class="btn iconbtn railtoggle" id="railToggle" type="button" aria-label="Collapse sidebar" title="Collapse sidebar" aria-expanded="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><a class="btn iconbtn devlink" href="#/dev" aria-label="Open dev view" title="Dev view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></a><button class="btn iconbtn" id="themeBtn" type="button" aria-label="Switch light or dark theme" title="Light / dark"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
@@ -1309,7 +1311,7 @@ function _renderResults0(){
     tr.appendChild(td(r.ourOpen==null?'—':fmtN(r.ourOpen),'num n'+(r.ourOpen==null?' dim':'')+(cd?' diff':'')));
     tr.appendChild(td(r.shipped?fmtN(r.shipped):'—','num n'+(r.shipped?'':' dim')));
     var inv = r.lastInv ? r.lastInv+(r.lastDate?' · '+iso(r.lastDate):'')+(r.invCount>1?' '+t('invMore',{n:r.invCount-1}):'') : '—';
-    tr.appendChild(td(inv,r.lastInv?'':'dim'));
+    var ic = td(inv,r.lastInv?'':'dim'); if(r.lastInv && r.allInv){ ic.className='hasinv'; ic.tabIndex=0; ic.setAttribute('data-inv', r.allInv); ic.setAttribute('data-n', String(r.invCount||1)); } tr.appendChild(ic);
     var sc = el('td'); sc.appendChild(pill(r.status)); tr.appendChild(sc);
     tb.appendChild(tr);
   });
