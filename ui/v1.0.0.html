@@ -1,9 +1,12 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V=14, BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V="1.0.0", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
-  var SW=window.__OTA_SWAPPED||0, CUR=Math.max(V,SW);
+  function nv(v){ v=String(v==null?'0.0.0':v); return /^\d+$/.test(v)?'0.0.'+v:v; }
+  function cmp(a,b){ a=nv(a).split('.'); b=nv(b).split('.'); for(var i=0;i<3;i++){ var d=(+a[i]||0)-(+b[i]||0); if(d) return d; } return 0; }
+  function mx(){ var r='0.0.0'; for(var i=0;i<arguments.length;i++){ var x=arguments[i]; if(x!=null && cmp(x,r)>0) r=nv(x); } return r; }
+  var SW=window.__OTA_SWAPPED||null, CUR=mx(V,SW);
   var st={text:'v'+CUR,title:'UI version '+CUR,cb:null,cls:''};
   function paint(){
     var t=document.querySelector('.tbleft'); if(!t) return;
@@ -53,10 +56,10 @@
     });
   }
   function check(cached){
-    var have=Math.max(V,SW,cached?cached.version:0);
-    if(cached && cached.version>CUR){ ready(cached.version); return Promise.resolve(); }
+    var have=mx(V,SW,cached?cached.version:null);
+    if(cached && cmp(cached.version,CUR)>0){ ready(cached.version); return Promise.resolve(); }
     return manifest().then(function(m){
-      if(!(m.version>have)){ stat('v'+CUR+' ✓','UI v'+CUR+' is up to date (latest published: v'+m.version+')'); return; }
+      if(!(cmp(m.version,have)>0)){ stat('v'+CUR+' ✓','UI v'+CUR+' is up to date (latest published: v'+m.version+')'); return; }
       stat('↓ 0%','Downloading v'+m.version);
       return download(m).then(function(html){
         var rec={version:m.version,sha:m.sha256,sig:m.sig,html:html};
@@ -70,7 +73,7 @@
     stat('v'+v+' ready · restart','Click to reload with the new version (your loaded files will be cleared)',function(){ location.reload(); });
   }
   get('ui').catch(function(){ return null; }).then(function(c){
-    if(!SW && c && c.version>V){
+    if(!SW && c && cmp(c.version,V)>0){
       return verify(c).then(function(){ swap(c); }, function(){ return put('ui',null).then(function(){ return check(null); }); });
     }
     return new Promise(function(r){ setTimeout(r,300); }).then(function(){ return check(c); });
