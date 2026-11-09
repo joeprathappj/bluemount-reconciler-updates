@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V="1.0.2", SRC0="9130b78bd9c2", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V="1.0.2", SRC0="5dfc1ed2cf8d", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
   // Boot splash: while a stored update is being checked, hide the bundled page behind a spinner so it never flashes.
@@ -1491,8 +1491,10 @@ function restoreSaved(){
         var f=parseFile(k, wb, r.name); if(!f.error){ f.saved=true; f.at=r.at||null; state.files[k]=f; any=true; } else { lost.push(slotName(k)+' ('+r.name+')'); FileStore.del(k); }
       }catch(e){ lost.push(slotName(k)+' ('+r.name+')'); FileStore.del(k); }
     });
+    state.instant = filesReady();
     if(lost.length && window.xToast) window.xToast('A saved file could not be restored and was removed: '+lost.join(', ')+'. Please load it again.','err');
     if(any) refresh();
+    state.instant = false;
   });
 }
 function loadFileNow(slotId, file){
@@ -1525,6 +1527,7 @@ function mount(id, go){
   if(go) h.firstElementChild.classList.add('go');
 }
 function showLoader(done){
+  if(state.instant){ state.instant = false; done(); return; }
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var dur = reduce ? 700 : 2400;
   var L = document.getElementById('loader'), msg = document.getElementById('loaderMsg'), bar = document.getElementById('loaderBar');
