@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V="1.0.0", SRC0="2f3ce7a99073", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V="1.0.1", SRC0="9b96c0395e89", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
   // Boot splash: while a stored update is being checked, hide the bundled page behind a spinner so it never flashes.
@@ -688,7 +688,8 @@ html.devmode,html.devmode body{overflow:hidden}
 @media (min-width:1000px) and (max-height:820px){.rsearch{min-height:36px}}
 @media (max-width:700px){.panel-head .toolbar:first-child{flex:1 1 100%;flex-wrap:wrap}.rsearch{flex:1 1 100%;width:auto}.panel-head .toolbar:first-child>label{display:none}.panel-head #statusFilter{flex:1 1 0;width:auto}#siteFilter{flex:0 0 112px;width:112px}.panel-head #exportBtn{width:100%;flex:1 1 100%}}
 .tbleft{display:flex;align-items:center;gap:8px;margin-right:auto;min-width:0}html.railc .tbleft{order:3;margin:0;flex-direction:column}html.railc .otastat{display:none!important}@media (max-width:999px){.topbar{left:20px;right:20px;top:12px}.wrap>.hero{padding-top:56px}}
-.invtip{position:fixed;z-index:60;max-width:min(440px,calc(100vw - 24px));max-height:min(60vh,380px);overflow:auto;background:var(--surface);color:var(--fg);border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;box-shadow:0 10px 28px rgba(0,0,0,.22);font-size:13px;line-height:1.55;text-align:left}.invtip b{display:block;margin-bottom:4px;font-weight:800}.invtip div{white-space:nowrap;padding:1px 0}td.hasinv{cursor:default}td.hasinv:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}td .pill{max-width:100%}.pill i{flex:none}@media (min-width:1500px){#statusFilter{flex:0 0 330px!important;width:330px!important}.panel-head .btn.primary{flex:none!important;max-width:none!important}}td:nth-child(8){text-overflow:clip!important}th{white-space:normal!important;text-overflow:clip!important;line-height:1.25}</style>
+.invtip{position:fixed;z-index:60;max-width:min(440px,calc(100vw - 24px));max-height:min(60vh,380px);overflow:auto;background:var(--surface);color:var(--fg);border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;box-shadow:0 10px 28px rgba(0,0,0,.22);font-size:13px;line-height:1.55;text-align:left}.invtip b{display:block;margin-bottom:4px;font-weight:800}.invtip div{white-space:nowrap;padding:1px 0}td.hasinv{cursor:default}td.hasinv:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}td .pill{max-width:100%}.pill i{flex:none}@media (min-width:1500px){#statusFilter{flex:0 0 330px!important;width:330px!important}.panel-head .btn.primary{flex:none!important;max-width:none!important}}td:nth-child(8){text-overflow:clip!important}th{white-space:normal!important;text-overflow:clip!important;line-height:1.25}.pager-btns{flex-wrap:wrap;gap:8px}.pgnums{display:inline-flex;align-items:center;gap:6px}.pgof{display:none}.pager .btn.pgn{min-width:40px;padding:0 10px}.pager .btn.pgcur{background:var(--btn-bg);color:var(--btn-fg);border-color:var(--btn-bg);opacity:1}.pgdots{color:var(--muted);padding:0 2px}@media (max-width:700px){.pgnums{display:none}.pgof{display:inline}.pager-btns{justify-content:center;width:100%;gap:6px;flex-wrap:nowrap;font-size:13px}.pager .btn{padding:0 9px;min-width:0}}
+</style>
 <template id="mascotT">
 <svg class="mascot" viewBox="0 0 48 48" role="img" aria-label="Order Reconciliation logo">
   <rect class="mbg" x="2" y="2" width="44" height="44" rx="8"/>
@@ -700,9 +701,9 @@ html.devmode,html.devmode body{overflow:hidden}
 
 <div id="devPage" hidden></div>
 <script>(function(){var tip=null,cur=null,tm=0;function hide(){clearTimeout(tm);if(tip){tip.remove();tip=null;}cur=null;}function later(){clearTimeout(tm);tm=setTimeout(hide,160);}function show(td){clearTimeout(tm);if(cur===td&&tip)return;hide();cur=td;var list=(td.getAttribute("data-inv")||"").split("; ").filter(Boolean);tip=document.createElement("div");tip.className="invtip";tip.setAttribute("role","tooltip");var h=document.createElement("b");h.textContent=(list.length===1?"1 invoice":list.length+" invoices");tip.appendChild(h);list.forEach(function(x){var d=document.createElement("div");d.textContent=x;tip.appendChild(d);});tip.addEventListener("mouseenter",function(){clearTimeout(tm);});tip.addEventListener("mouseleave",later);document.body.appendChild(tip);var r=td.getBoundingClientRect(),w=tip.offsetWidth,hh=tip.offsetHeight;var x=Math.max(8,Math.min(r.left,innerWidth-w-8));var y=r.bottom-1;if(y+hh>innerHeight-8&&r.top-hh>8)y=r.top-hh+1;tip.style.left=x+"px";tip.style.top=Math.max(8,y)+"px";}document.addEventListener("mouseover",function(e){if(!window.matchMedia("(hover:hover)").matches)return;var td=e.target.closest&&e.target.closest("td.hasinv");if(td)show(td);});document.addEventListener("mouseout",function(e){var td=e.target.closest&&e.target.closest("td.hasinv");if(td&&!(e.relatedTarget&&tip&&tip.contains(e.relatedTarget)))later();});document.addEventListener("focusin",function(e){var td=e.target.closest&&e.target.closest("td.hasinv");if(td)show(td);});document.addEventListener("focusout",function(e){if(e.target.closest&&e.target.closest("td.hasinv"))later();});document.addEventListener("keydown",function(e){if(e.key==="Escape")hide();});window.addEventListener("scroll",hide,true);})()</script>
-<script>document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#resetBtn");if(b)location.reload();});</script>
+<script>document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#resetBtn");if(b){ var done=function(){ location.reload(); }; try{ var q=indexedDB.deleteDatabase("recon-files"); q.onsuccess=q.onerror=q.onblocked=done; setTimeout(done,800); }catch(x){ done(); } }});</script>
 <div class="wrap">
-  <div class="topbar"><div class="tbleft"><button class="btn iconbtn resetbtn" id="resetBtn" type="button" title="Reset (reload the page)" aria-label="Reset and reload the page"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button></div><button class="btn iconbtn railtoggle" id="railToggle" type="button" aria-label="Collapse sidebar" title="Collapse sidebar" aria-expanded="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><a class="btn iconbtn devlink" href="#/dev" aria-label="Open dev view" title="Dev view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></a><button class="btn iconbtn" id="themeBtn" type="button" aria-label="Switch light or dark theme" title="Light / dark"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
+  <div class="topbar"><div class="tbleft"><button class="btn iconbtn resetbtn" id="resetBtn" type="button" title="Reset: clear the loaded files and start over" aria-label="Reset: clear the loaded files and start over"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button></div><button class="btn iconbtn railtoggle" id="railToggle" type="button" aria-label="Collapse sidebar" title="Collapse sidebar" aria-expanded="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><a class="btn iconbtn devlink" href="#/dev" aria-label="Open dev view" title="Dev view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></a><button class="btn iconbtn" id="themeBtn" type="button" aria-label="Switch light or dark theme" title="Light / dark"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
   <div class="hero">
     <div>
       <h1 data-i18n="title">Order Reconciler</h1>
@@ -779,8 +780,8 @@ var I18N = {
   loaderSub:"Processing files locally.",
   mascotAlt:"Order Reconciliation logo",
   st_matched:"Pending", sd_matched:"Open on both {A} and {C} with the same quantity. Not yet shipped on {B}.",
-  st_qtydiff:"Quantity mismatch", sd_qtydiff:"Present in both {A} and {C}, but with different open quantities.",
-  st_c_ship:"Shipped", sd_c_ship:"Invoiced and shipped on {B}. Not open on {C}, or still open there but already invoiced; treat as shipped.",
+  st_qtydiff:"Quantity mismatch", sd_qtydiff:"Present in both {A} and {C}, with different open quantities that the shipments on {B} do not explain.",
+  st_c_ship:"Shipped", sd_c_ship:"Invoiced and shipped on {B}. Not open on {C}, or still open there but already invoiced. Also used when the quantity gap between {A} and {C} is fully explained by the shipment (customer open minus shipped equals Bluemount open).",
   st_c_noship:"Missing", sd_c_noship:"Missed by Bluemount based on customer orders: open on {A}, but not on {C} and not shipped on {B}.",
   st_o_ship:"Open but invoiced", sd_o_ship:"Open on {C}, but invoices already exist on {B}. Our open orders are out of date.",
   st_o_noship:"Not on customer open orders", sd_o_noship:"Open in Bluemount system ({C}), not on the customer open order report ({A}), not shipped on {B}.",
@@ -817,7 +818,7 @@ var I18N = {
   n_csum:"{n} duplicate lines in Bluemount Open Orders were summed.",
   n_adup:"{n} duplicate lines in Customer Open Orders were summed.",
   n_bdup:"{n} invoice lines were additional shipments of an order line already shipped and were summed.",
-  n_nooverlap:"No PO and line numbers are shared between Customer Open Orders and Bluemount Open Orders. Check that the correct files were loaded.", n_bonly:"{n} shipped lines are not open on either list and were excluded.",
+  n_nooverlap:"No PO and line numbers are shared between Customer Open Orders and Bluemount Open Orders. Check that the correct files were loaded.", n_bonly:"{n} shipped lines are not open on either list. They are not shown in the table, but searching a PO or line brings them up from the shipped invoices.",
   x_po:"PO", x_ln:"LN", x_key:"PO-LN", x_site:"Site", x_status:"Status", x_cust:"Customer open qty", x_ours:"Bluemount open qty", x_diff:"Open difference", x_shipq:"Shipped qty", x_invc:"Invoice count", x_lastno:"Last invoice no", x_lastdt:"Last invoice date", x_all:"All invoices",
   s_export:"Export", s_everything:"All", s_rows:"Rows exported", s_gen:"Generated", s_status:"Status", s_count:"Rows (all data)", s_total:"Total", s_checks:"Checks", sheetMerged:"Merged", sheetSummary:"Summary",
   saved:"Exported {f}", cancelled:"Export cancelled. No file was saved.", failed:"Export failed: {m}", unavailable:"unavailable"
@@ -829,7 +830,7 @@ function t(key, vars){
   if(vars) s = s.replace(/\{(\w+)\}/g, function(m,k){ return vars[k]!=null?vars[k]:m; });
   return s;
 }
-function stLabel(id){ return t('st_'+id); }
+function stLabel(id){ return id==='b_only' ? 'Shipped (not open)' : t('st_'+id); }
 function slotName(k){ return t('slot'+k); }
 function stDesc(id){ return t('sd_'+id).replace(/\{([ABC])\}/g,function(m,k){ return slotName(k); }); }
 function stDescNode(id){
@@ -865,6 +866,7 @@ var STATUSES = [
   {id:'o_noship', cls:'p-neutral'}
 ];
 var STATUS_BY_ID = {}; STATUSES.forEach(function(s){STATUS_BY_ID[s.id]=s;});
+STATUS_BY_ID.b_only = {id:'b_only', cls:STATUS_BY_ID.c_ship.cls};
 
 var SLOTS = [
   {id:'A', n:1}, {id:'B', n:2}, {id:'C', n:3}
@@ -1065,8 +1067,9 @@ function merge(F){
   var bDup=0;
   F.B.rows.forEach(function(r){
     var k = keyOf(r.po,r.ln);
-    if(!B[k]) B[k] = {qty:0, inv:[]};
+    if(!B[k]) B[k] = {qty:0, inv:[], po:r.po, ln:r.ln, site:''};
     else bDup++;
+    if(r.site && !B[k].site) B[k].site = r.site;
     var q = r.qty==null?0:r.qty;
     B[k].qty += q;
     B[k].inv.push({no:r.inv, date:r.date, qty:q, order:r.order});
@@ -1079,7 +1082,12 @@ function merge(F){
   var rows = Object.keys(keys).map(function(k){
     var a = A[k], c = C[k], b = B[k];
     var st;
-    if(a && c) st = (Math.abs(a.open-c.open)<1e-9)?'matched':'qtydiff';
+    if(a && c){
+      if(Math.abs(a.open-c.open)<1e-9) st='matched';
+      /* customer open - shipped = Bluemount open: the difference is explained by the shipment */
+      else if(b && b.qty>0 && Math.abs(a.open-b.qty-c.open)<1e-9) st='c_ship';
+      else st='qtydiff';
+    }
     else if(a)  st = (b&&b.qty>0)?'c_ship':'c_noship';
     else        st = (b&&b.qty>0)?'c_ship':'o_noship';
     var last=null;
@@ -1107,7 +1115,16 @@ function merge(F){
   rows.sort(cmpKey);
 
   var onOpen = {}; rows.forEach(function(r){onOpen[r.key]=1;});
-  var bOnly = Object.keys(B).filter(function(k){return !onOpen[k];}).length;
+  var bonlyRows = Object.keys(B).filter(function(k){return !onOpen[k];}).map(function(k){
+    var b=B[k], last=null;
+    b.inv.forEach(function(i){ if(!last) last=i; else if(i.date && (!last.date || i.date>last.date)) last=i; else if(!i.date && !last.date && i.order>last.order) last=i; });
+    return {key:k, po:b.po, ln:b.ln, site:b.site||'', custOpen:null, ourOpen:null, shipped:b.qty, invCount:b.inv.length,
+      lastInv:last?last.no:'', lastDate:last?last.date:null,
+      allInv:b.inv.slice().sort(function(x,y){ return (x.date||0)-(y.date||0) || x.order-y.order; }).map(function(i){return i.no+(i.date?' ('+iso(i.date)+')':'')+' x'+fmtN(i.qty);}).join('; '),
+      status:'b_only'};
+  });
+  bonlyRows.sort(cmpKey);
+  var bOnly = bonlyRows.length;
 
   /* notes */
   var bl = F.B.blank + F.A.blank + F.C.blank;
@@ -1124,7 +1141,7 @@ function merge(F){
 
   var counts = {all:rows.length}; STATUSES.forEach(function(s){counts[s.id]=0;});
   rows.forEach(function(r){counts[r.status]++;});
-  return {rows:rows, notes:notes, counts:counts};
+  return {rows:rows, notes:notes, counts:counts, bonly:bonlyRows};
 }
 
 /* ---------- rendering ---------- */
@@ -1164,7 +1181,9 @@ function renderSlots(){
 function filteredRows(){
   if(!state.merged) return [];
   var q = state.q.trim().toLowerCase();
-  return state.merged.rows.filter(function(r){
+  var base = state.merged.rows;
+  if(q && state.filter==='all' && state.merged.bonly) base = base.concat(state.merged.bonly);
+  return base.filter(function(r){
     if(state.filter!=='all' && r.status!==state.filter) return false;
     if(state.site!=='all' && (r.site||'')!==state.site) return false;
     if(q && (r.po+'-'+r.ln+' '+r.po+' '+r.ln+' '+(r.lastInv||'')).toLowerCase().indexOf(q)<0) return false;
@@ -1327,11 +1346,35 @@ function _renderResults0(){
   var prev = el('button',{class:'btn',type:'button',text:t('back')});
   var next = el('button',{class:'btn',type:'button',text:t('next')});
   prev.disabled = state.page<=1; next.disabled = state.page>=pages;
-  prev.addEventListener('click', function(){ state.page--; renderResults(); scrollToTable(); });
-  next.addEventListener('click', function(){ state.page++; renderResults(); scrollToTable(); });
+  function goPage(n){ state.page = n; renderResults(); scrollToTable(); }
+  prev.addEventListener('click', function(){ goPage(state.page-1); });
+  next.addEventListener('click', function(){ goPage(state.page+1); });
+  var first = el('button',{class:'btn pgend',type:'button',text:'First','aria-label':'First page'});
+  var last = el('button',{class:'btn pgend',type:'button',text:'Last','aria-label':'Last page'});
+  first.disabled = state.page<=1; last.disabled = state.page>=pages;
+  first.addEventListener('click', function(){ goPage(1); });
+  last.addEventListener('click', function(){ goPage(pages); });
+  var nums = el('span',{class:'pgnums'});
+  (function(){
+    var list = [], seen = {};
+    [1, state.page-1, state.page, state.page+1, pages].forEach(function(n){ if(n>=1 && n<=pages && !seen[n]){ seen[n]=1; list.push(n); } });
+    list.sort(function(a,b){return a-b;});
+    var prevN = 0;
+    list.forEach(function(n){
+      if(prevN && n-prevN===2){ nums.appendChild(numBtn(prevN+1)); }
+      else if(prevN && n-prevN>2){ nums.appendChild(el('span',{class:'pgdots','aria-hidden':'true',text:'…'})); }
+      nums.appendChild(numBtn(n)); prevN = n;
+    });
+    function numBtn(n){
+      var b = el('button',{class:'btn pgn'+(n===state.page?' pgcur':''),type:'button',text:String(n),'aria-label':'Page '+n});
+      if(n===state.page) b.setAttribute('aria-current','page');
+      b.addEventListener('click', function(){ if(n!==state.page) goPage(n); });
+      return b;
+    }
+  })();
   tp.appendChild(el('div',{class:'pager'},[
     el('span',{'aria-live':'polite',text:t('showing',{a:from,b:to,n:rows.length})}),
-    el('div',{class:'pager-btns'},[ prev, el('span',{text:t('pageOf',{p:state.page,n:pages})}), next ])
+    el('div',{class:'pager-btns'},[ first, prev, nums, el('span',{class:'pgof',text:t('pageOf',{p:state.page,n:pages})}), next, last ])
   ]));
   host.appendChild(tp);
   (function(){ var bx=tp.querySelector('.tablebox'), em=tp.querySelector('.empty'); var real=tp.querySelectorAll('tbody tr:not(.fill)').length;
@@ -1349,6 +1392,29 @@ function renderLegend(){
 }
 
 /* ---------- loading ---------- */
+var FileStore = (function(){
+  function open(){ return new Promise(function(res,rej){ try{ var q=indexedDB.open('recon-files',1); q.onupgradeneeded=function(){ q.result.createObjectStore('f'); }; q.onsuccess=function(){res(q.result);}; q.onerror=function(){rej(q.error);}; }catch(e){ rej(e); } }); }
+  function tx(mode,fn){ return open().then(function(db){ return new Promise(function(res,rej){ var t1=db.transaction('f',mode), st=t1.objectStore('f'), out=fn(st); t1.oncomplete=function(){ db.close(); res(out&&out.result); }; t1.onerror=t1.onabort=function(){ db.close(); rej(t1.error); }; }); }); }
+  return {
+    put:function(slot,rec){ return tx('readwrite',function(st){ st.put(rec,slot); }).catch(function(){}); },
+    get:function(slot){ return tx('readonly',function(st){ return st.get(slot); }).catch(function(){ return null; }); },
+    clear:function(){ return tx('readwrite',function(st){ st.clear(); }).catch(function(){}); }
+  };
+})();
+window.__FileStore = FileStore;
+function restoreSaved(){
+  return Promise.all(['A','B','C'].map(function(k){ return FileStore.get(k); })).then(function(recs){
+    var any=false;
+    ['A','B','C'].forEach(function(k,i){
+      var r=recs[i]; if(!r || !r.buf) return;
+      try{
+        var wb=XLSX.read(new Uint8Array(r.buf),{type:'array',cellDates:true});
+        var f=parseFile(k, wb, r.name); if(!f.error){ f.saved=true; state.files[k]=f; any=true; }
+      }catch(e){}
+    });
+    if(any) refresh();
+  });
+}
 function loadFile(slotId, file){
   var reader = new FileReader();
   reader.onerror = function(){
@@ -1358,6 +1424,7 @@ function loadFile(slotId, file){
     try{
       var wb = XLSX.read(new Uint8Array(reader.result),{type:'array',cellDates:true});
       state.files[slotId] = parseFile(slotId, wb, file.name);
+      if(!state.files[slotId].error) FileStore.put(slotId,{name:file.name, buf:reader.result, at:Date.now()});
     }catch(e){
       state.files[slotId] = {name:file.name, rows:[], error:{k:'errOpen'}};
     }
@@ -1419,7 +1486,7 @@ function xToast(msg,kind){
   void _xt.offsetWidth; _xt.classList.add('on'); clearTimeout(_xtT); _xtT=setTimeout(function(){ _xt.classList.remove('on'); },3800);
 }
 function tintRow(row,st){ var sty = st==='c_noship'?XSTYLE.bad : st==='qtydiff'?XSTYLE.warn : 0; if(!sty) return row; return row.map(function(c){ var v=(c&&typeof c==='object')?c.v:c; return {v:v,s:sty}; }); }
-var ST_XSTYLE = {matched:8, c_ship:2, qtydiff:3, c_noship:4, o_noship:5};
+var ST_XSTYLE = {matched:8, c_ship:2, qtydiff:3, c_noship:4, o_noship:5, b_only:2};
 var CRC_T = (function(){ var t=[],c,n,k; for(n=0;n<256;n++){ c=n; for(k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
 function crc32(u8){ var c=0xFFFFFFFF; for(var i=0;i<u8.length;i++) c = CRC_T[(c^u8[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
 function zipStore(files){
@@ -1573,6 +1640,7 @@ function doExport(){
 
 mount('heroMascot', false);
 applyStatic(); renderLegend(); renderSlots(); renderResults();
+restoreSaved();
 window.__recon = {state:state, merge:merge, parseFile:parseFile};
 /* ---------- Dev view: route #/dev ---------- */
 (function(){
