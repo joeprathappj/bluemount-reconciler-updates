@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V="1.0.2", SRC0="5dfc1ed2cf8d", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V="1.0.2", SRC0="4702052ded4e", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
   // Boot splash: while a stored update is being checked, hide the bundled page behind a spinner so it never flashes.
@@ -1480,8 +1480,22 @@ var FileStore = (function(){
   };
 })();
 window.__FileStore = FileStore;
+function saveSnap(){
+  try{
+    var M = state.merged; if(!M) return;
+    var fs = {}, sig = [];
+    ['A','B','C'].forEach(function(k){ var f = state.files[k]; fs[k] = f; sig.push(f ? f.name+'|'+(f.at||0) : ''); });
+    FileStore.put('snap',{v:1, sig:sig.join('#'), files:fs, merged:M});
+  }catch(e){}
+}
 function restoreSaved(){
-  return Promise.all(['A','B','C'].map(function(k){ return FileStore.get(k); })).then(function(recs){
+  return Promise.all(['A','B','C','snap'].map(function(k){ return FileStore.get(k); })).then(function(recs){
+    var snapRec = recs[3]; recs = recs.slice(0,3);
+    if(snapRec && snapRec.v===1 && recs.every(function(r){ return r && r.buf; }) && snapRec.sig===recs.map(function(r){ return r.name+'|'+(r.at||0); }).join('#')){
+      ['A','B','C'].forEach(function(k){ snapRec.files[k].saved = true; state.files[k] = snapRec.files[k]; });
+      state.merged = snapRec.merged; state.loading = false; state.page = 1; state.filter = 'all'; state.site = 'all'; state.q = '';
+      renderLegend(); renderSlots(); renderResults(); return;
+    }
     var any=false, lost=[];
     ['A','B','C'].forEach(function(k,i){
       var r=recs[i]; if(!r) return;
@@ -1556,6 +1570,7 @@ function refresh(){
     state.merged = merge(state.files);
     state.filter = 'all'; state.site = 'all'; state.q = ''; state.justMerged = true;
     renderResults();
+    saveSnap();
   });
 }
 
