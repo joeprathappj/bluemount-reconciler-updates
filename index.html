@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V="1.0.2", SRC0="cc3a88e49eb5", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V="1.0.2", SRC0="9130b78bd9c2", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
   // Boot splash: while a stored update is being checked, hide the bundled page behind a spinner so it never flashes.
@@ -1030,12 +1030,24 @@ function fingerprint(wb){
 }
 function badCsv(name, buf){
   if(!/\.csv$/i.test(name||'')) return false;
-  var u = new Uint8Array(buf), q = 0;
-  for(var i=0;i<u.length;i++) if(u[i]===34) q++;
-  return q%2===1;
+  var u = new Uint8Array(buf), n = u.length, i = 0, start = true, inq = false;
+  function delim(c){ return c===44 || c===59 || c===9; }
+  function eol(c){ return c===10 || c===13; }
+  while(i<n){
+    var c = u[i];
+    if(inq){
+      if(c===34){ if(u[i+1]===34){ i+=2; continue; } var d = u[i+1]; if(i+1>=n || delim(d) || eol(d)){ inq=false; i++; continue; } return true; }
+      i++; continue;
+    }
+    if(start){ start=false; if(c===34){ inq=true; i++; continue; } }
+    if(c===34) return true;
+    if(delim(c) || eol(c)) start=true;
+    i++;
+  }
+  return inq;
 }
 function notSpreadsheet(name, buf){
-  if(/\.(csv|txt)$/i.test(name||'')) return false;
+  if(/\.csv$/i.test(name||'')) return false;
   var u = new Uint8Array(buf, 0, Math.min(4, buf.byteLength||0));
   var zip = u[0]===0x50 && u[1]===0x4B, ole = u[0]===0xD0 && u[1]===0xCF && u[2]===0x11 && u[3]===0xE0;
   return !(zip || ole);
@@ -1827,33 +1839,6 @@ renderSlots = function(){
   });
 };
 
-/* ---------- full text on hover for clipped cells ---------- */
-(function(){
-  var tip=null,cur=null,tm=0;
-  function hide(){ clearTimeout(tm); if(tip){ tip.remove(); tip=null; } cur=null; }
-  function later(){ clearTimeout(tm); tm=setTimeout(hide,120); }
-  function clipped(e){ return e && e.scrollWidth>e.clientWidth+1; }
-  function find(n){
-    var c = n.closest && n.closest('#results td, #results th, .slot .fname, .slot-title');
-    if(!c || c.classList.contains('hasinv')) return null;
-    var pl = n.closest('.pill'); if(pl && c.contains(pl) && clipped(pl)) return {c:pl,text:pl.textContent.trim()};
-    if(clipped(c)) return {c:c,text:c.textContent.trim()};
-    return null;
-  }
-  function show(x){
-    clearTimeout(tm); if(cur===x.c && tip) return; hide(); cur=x.c;
-    tip=document.createElement('div'); tip.className='invtip celltip'; tip.setAttribute('role','tooltip'); tip.textContent=x.text;
-    document.body.appendChild(tip);
-    var r=x.c.getBoundingClientRect(), w=tip.offsetWidth, h=tip.offsetHeight;
-    var left=Math.max(8,Math.min(r.left,innerWidth-w-8)), top=r.bottom-1;
-    if(top+h>innerHeight-8 && r.top-h>8) top=r.top-h+1;
-    tip.style.left=left+'px'; tip.style.top=Math.max(8,top)+'px';
-  }
-  document.addEventListener('mouseover',function(e){ if(!window.matchMedia('(hover:hover)').matches) return; var x=find(e.target); if(x) show(x); else if(!(tip&&tip.contains(e.target))) later(); });
-  document.addEventListener('mouseout',function(e){ if(cur && !(e.relatedTarget && (cur.contains(e.relatedTarget)||(tip&&tip.contains(e.relatedTarget))))) later(); });
-  window.addEventListener('scroll',hide,true);
-  document.addEventListener('keydown',function(e){ if(e.key==='Escape') hide(); });
-})();
 
 /* ---------- what's new, once after an update ---------- */
 (function(){
