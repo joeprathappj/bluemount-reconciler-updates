@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><script>/*OTA-BEGIN*/
 (function(){
-  var V="1.0.2", SRC0="6cb06503079f", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
+  var V="1.0.2", SRC0="647d11ed2a53", BASE="https://raw.githubusercontent.com/joeprathappj/bluemount-reconciler-updates/main/", API="https://api.github.com/repos/joeprathappj/bluemount-reconciler-updates/contents/", PUB={"kty":"EC","x":"9YvuNpMUMzWYjXaHePxvclEpitTE0GzppGWUBVJnuf8","y":"t2Ghf94vNXU_hXQCX3Tj11weqTH3WeIkRDyLNPkQDt8","crv":"P-256"};
   var T=window.__TAURI__;
   if(!T) return;
   // Boot splash: while a stored update is being checked, hide the bundled page behind a spinner so it never flashes.
@@ -726,7 +726,7 @@ table.xt{min-width:880px}table.xt.xi{min-width:1100px}@media (min-width:701px){t
 </template>
 
 <div id="devPage" hidden></div>
-<script type="application/json" id="whatsnew">{"items": ["Replacing a file now waits in a queue. Nothing reprocesses until you press Process now, and each file shows when it was last updated.", "New option: Include closed POs. Fully shipped lines that are no longer open show as Shipped (not open). They are always found by search, and the counts and export follow the option.", "New columns: Customer orig qty, plus Item and Item rev (tick Show item and item revision).", "Shipped rule fixed: customer qty minus shipped qty equal to the Bluemount qty now counts as Shipped.", "Orders with a suffix after the line (for example 4781145719-1.Tryout) now match instead of showing a false Missing.", "Clearer file messages: empty sheet, unreadable file and CSV with a stray quote mark. Blank quantities and uncounted rows are reported in the processing notes.", "Fixed a false warning when one order is split over rows on a second sheet.", "Hover over any cut-off text to read it in full. The table has First, Last and page numbers, and keyboard focus stays on the pager.", "Your three files are kept after you close the app. Reset clears them."]}</script>
+<script type="application/json" id="whatsnew">{"items": ["Replacing a file now waits in a queue. Nothing reprocesses until you press Process now, and each file shows when it was last updated.", "New option: Include closed POs. Fully shipped lines that are no longer open show as Shipped (not open). They are always found by search, and the counts and export follow the option.", "New columns: Customer orig qty, plus Item and Item rev (tick Show item and item revision).", "Shipped rule fixed: customer qty minus shipped qty equal to the Bluemount qty now counts as Shipped.", "Orders with a suffix after the line (for example 4781145719-1.Tryout) now match instead of showing a false Missing.", "Clearer file messages: empty sheet, unreadable file and CSV with a stray quote mark. Blank quantities and uncounted rows are reported in the processing notes.", "Fixed a false warning when one order is split over rows on a second sheet.", "Hover over any cut-off text to read it in full. The table has First, Last and page numbers, and keyboard focus stays on the pager.", "Your three files are kept after you close the app. Reset clears them.", "Numbers now use one format everywhere (6,409), and counts read correctly for one item (\"1 row\", \"1 line\").", "Updated the spreadsheet reader to the latest secure version."]}</script>
 <script>(function(){var tip=null,cur=null,tm=0;function hide(){clearTimeout(tm);if(tip){tip.remove();tip=null;}cur=null;}function later(){clearTimeout(tm);tm=setTimeout(hide,160);}function show(td){clearTimeout(tm);if(cur===td&&tip)return;hide();cur=td;var list=(td.getAttribute("data-inv")||"").split("; ").filter(Boolean);tip=document.createElement("div");tip.className="invtip";tip.setAttribute("role","tooltip");var h=document.createElement("b");h.textContent=(list.length===1?"1 invoice":list.length+" invoices");tip.appendChild(h);list.forEach(function(x){var d=document.createElement("div");d.textContent=x;tip.appendChild(d);});tip.addEventListener("mouseenter",function(){clearTimeout(tm);});tip.addEventListener("mouseleave",later);document.body.appendChild(tip);var r=td.getBoundingClientRect(),w=tip.offsetWidth,hh=tip.offsetHeight;var x=Math.max(8,Math.min(r.left,innerWidth-w-8));var y=r.bottom-1;if(y+hh>innerHeight-8&&r.top-hh>8)y=r.top-hh+1;tip.style.left=x+"px";tip.style.top=Math.max(8,y)+"px";}document.addEventListener("mouseover",function(e){if(!window.matchMedia("(hover:hover)").matches)return;var td=e.target.closest&&e.target.closest("td.hasinv");if(td)show(td);});document.addEventListener("mouseout",function(e){var td=e.target.closest&&e.target.closest("td.hasinv");if(td&&!(e.relatedTarget&&tip&&tip.contains(e.relatedTarget)))later();});document.addEventListener("focusin",function(e){var td=e.target.closest&&e.target.closest("td.hasinv");if(td)show(td);});document.addEventListener("focusout",function(e){if(e.target.closest&&e.target.closest("td.hasinv"))later();});document.addEventListener("keydown",function(e){if(e.key==="Escape")hide();});window.addEventListener("scroll",hide,true);})()</script>
 <script>document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#resetBtn");if(b){ var done=function(){ location.reload(); }; try{ var q=indexedDB.deleteDatabase("recon-files"); q.onsuccess=q.onerror=q.onblocked=done; setTimeout(done,800); }catch(x){ done(); } }});</script>
 <div class="wrap">
@@ -855,8 +855,16 @@ var I18N = {
 var LANG = 'en';
 function t(key, vars){
   var s = I18N.en[key]; if(s==null) s = key;
-  if(vars) s = s.replace(/\{(\w+)\}/g, function(m,k){ return vars[k]!=null?vars[k]:m; });
+  if(vars) s = s.replace(/\{(\w+)\}/g, function(m,k){ var v=vars[k]; return v==null?m:(typeof v==='number'?fmtCount(v):v); });
+  if(!LANG || LANG==='en') s = fixPlural(s);
   return s;
+}
+function fmtCount(n){ return Number(n).toLocaleString('en-US'); }
+function fixPlural(s){
+  return s.replace(/(^|[^\d,.\u2013-])1 ((?:empty |shipped )?)(row|line|order|invoice|sheet|file)s\b( were| are| appear| have)?/g, function(m,pre,adj,w,vb){
+    var v = vb==' were' ? ' was' : vb==' are' ? ' is' : vb==' appear' ? ' appears' : vb==' have' ? ' has' : (vb||'');
+    return pre+'1 '+adj+w+v;
+  });
 }
 function stLabel(id){ return id==='b_only' ? 'Shipped (not open)' : t('st_'+id); }
 function slotName(k){ return t('slot'+k); }
@@ -876,7 +884,7 @@ function errText(e){
   return t(e.k, e.v);
 }
 function closedIn(){ return !!state.showClosed; }
-function noteText(n){ if(n[0]==='n_bonly') return n[1].n+(closedIn() ? ' shipped lines are not open on either list. They are included here with the status Shipped (not open).' : ' shipped lines are not open on either list. They are left out here; tick Include closed POs, or search a PO, to see them.'); return t(n[0], n[1]); }
+function noteText(n){ if(n[0]==='n_bonly') return fixPlural(n[1].n+(closedIn() ? ' shipped lines are not open on either list. They are included here with the status Shipped (not open).' : ' shipped lines are not open on either list. They are left out here; tick Include closed POs, or search a PO, to see them.')); return t(n[0], n[1]); }
 function rowsWord(n){ return t(n===1?'row1':'rowN'); }
 function applyStatic(){
   document.documentElement.lang = LANG;
@@ -1193,15 +1201,15 @@ function merge(F){
 
   /* notes */
   var bl = F.B.blank + F.A.blank + F.C.blank;
-  if(bl) notes.push(['n_blank',{n:bl.toLocaleString()}]);
+  if(bl) notes.push(['n_blank',{n:bl.toLocaleString('en-US')}]);
   var sk = F.A.skipped+F.B.skipped+F.C.skipped;
   if(sk) notes.push(['n_skip',{n:sk}]);
   if(F.C.sheets.length>1) notes.push([cCrossDiff?'n_sheetsD':'n_sheetsA',{n:F.C.sheets.length,list:F.C.sheets.map(function(s){return s.name+': '+s.rows;}).join(', '),x:cCross,d:cCrossDiff}]);
   if(cSum) notes.push(['n_csum',{n:cSum}]);
   if(aDup) notes.push(['n_adup',{n:aDup}]);
   if(bDup) notes.push(['n_bdup',{n:bDup}]);
-  notes.push(['n_bonly',{n:bOnly.toLocaleString()}]);
-  if(badQty) notes.push(['n_badqty',{n:badQty.toLocaleString()}]);
+  notes.push(['n_bonly',{n:bOnly.toLocaleString('en-US')}]);
+  if(badQty) notes.push(['n_badqty',{n:badQty.toLocaleString('en-US')}]);
   var ovl=0; Object.keys(A).forEach(function(k){ if(C[k]) ovl++; });
   if(Object.keys(A).length && Object.keys(C).length && !ovl) notes.push(['n_nooverlap',{}]);
 
@@ -1225,7 +1233,7 @@ function renderSlots(){
       if(f.error){
         card.appendChild(el('div',{class:'errbox',role:'alert',text:errText(f.error)}));
       } else {
-        card.appendChild(el('div',{},[ el('span',{class:'pill p-ok'},[el('i'), t('gotIt',{n:f.rows.length.toLocaleString()})]) ]));
+        card.appendChild(el('div',{},[ el('span',{class:'pill p-ok'},[el('i'), t('gotIt',{n:f.rows.length.toLocaleString('en-US')})]) ]));
       }
     } else {
       card.appendChild(el('div',{class:'hint',text:t('hint'+s.id)}));
@@ -1272,7 +1280,7 @@ function statusInfo(M, id){
   if(id==='all'){
     tip.appendChild(el('div',{class:'tip-h'},[ el('b',{text:t('infoAll')}), el('span',{class:'tip-n',text:M.counts.all+' '+rowsWord(M.counts.all)}) ]));
     tip.appendChild(el('div',{class:'tip-p',text:t('infoAllHint')}));
-    STATUSES.forEach(function(s){ tip.appendChild(el('div',{class:'tip-r'},[ pill(s.id), el('span',{class:'tip-n',text:String(M.counts[s.id]||0)}) ])); });
+    STATUSES.forEach(function(s){ tip.appendChild(el('div',{class:'tip-r'},[ pill(s.id), el('span',{class:'tip-n',text:fmtCount(M.counts[s.id]||0)}) ])); });
   } else {
     tip.appendChild(el('div',{class:'tip-h'},[ pill(id), el('span',{class:'tip-n',text:M.counts[id]+' '+rowsWord(M.counts[id])}) ]));
     tip.appendChild(el('div',{class:'tip-p'},[stDescNode(id)]));
@@ -1336,11 +1344,11 @@ function _renderResults0(){
   var KPI_ORDER = ['c_noship','qtydiff','o_ship','o_noship','c_ship','matched'];
   KPI_ORDER.forEach(function(id){
     var s = STATUSES.filter(function(x){return x.id===id;})[0]; if(!s || !M.counts[id]) return;
-    var b = el('button',{class:'pill kpi '+s.cls,type:'button','aria-pressed':String(state.filter===id)},[el('i'), el('b',{text:String(M.counts[id])}), el('span',{class:'pl',text:stLabel(id)})]);
+    var b = el('button',{class:'pill kpi '+s.cls,type:'button','aria-pressed':String(state.filter===id)},[el('i'), el('b',{text:fmtCount(M.counts[id])}), el('span',{class:'pl',text:stLabel(id)})]);
     b.addEventListener('click', function(){ state.filter = (state.filter===id?'all':id); state.page = 1; renderResults(); var t2=document.getElementById('statusFilter'); if(t2) t2.focus(); });
     pills.appendChild(b);
   });
-  var sub = attn ? t('doneSubAttn',{n:M.counts.all.toLocaleString(),good:fine.toLocaleString(),attn:attn}) : t('doneSub',{n:M.counts.all.toLocaleString(),good:fine.toLocaleString()});
+  var sub = attn ? t('doneSubAttn',{n:M.counts.all.toLocaleString('en-US'),good:fine.toLocaleString('en-US'),attn:attn}) : t('doneSub',{n:M.counts.all.toLocaleString('en-US'),good:fine.toLocaleString('en-US')});
   top.appendChild(el('div',{class:'done'},[
     el('div',{class:'donehead'},[ cheer, el('div',{},[ el('h2',{text:t('doneTitle')}), el('p',{text:sub}) ]) ]),
     pills
@@ -1804,7 +1812,7 @@ function closedChk(M){
     try{ localStorage.setItem('reconClosed', cb.checked?'1':'0'); }catch(e){}
     renderResults(); var c2 = document.getElementById('closedChk'); if(c2) c2.focus({preventScroll:true});
   });
-  return el('label',{class:'closedchk',for:'closedChk',title:'Lines found only on Bluemount Shipped Invoice: fully shipped and no longer open on either list. Shown in the table and included in the export.'},[cb, el('span',{text:'Include closed POs: fully shipped, no longer open'+(n?' ('+n.toLocaleString()+' lines)':'')})]);
+  return el('label',{class:'closedchk',for:'closedChk',title:'Lines found only on Bluemount Shipped Invoice: fully shipped and no longer open on either list. Shown in the table and included in the export.'},[cb, el('span',{text:'Include closed POs: fully shipped, no longer open'+(n?' ('+n.toLocaleString('en-US')+' lines)':'')})]);
 }
 
 /* ---------- full text on hover for anything cut off with an ellipsis ---------- */
@@ -1974,7 +1982,7 @@ window.__recon = {state:state, merge:merge, parseFile:parseFile};
   function chip(r){ return el('span',{class:'dchip '+CHIP[r.status],text:stLabel(r.status)}); }
   function kpi(icon,label,val,pct,cls){
     return el('div',{class:'dv-kpi'},[ (function(){var d=el('div',{class:'ic'});d.innerHTML=IC[icon];return d;})(), el('div',{class:'lb',text:label}),
-      el('div',{class:'vl'},[ el('span',{text:val.toLocaleString()}), pct==null?null:el('span',{class:'dchip '+cls,text:pct}) ]) ]);
+      el('div',{class:'vl'},[ el('span',{text:val.toLocaleString('en-US')}), pct==null?null:el('span',{class:'dchip '+cls,text:pct}) ]) ]);
   }
 
   function renderDev(){
@@ -2011,7 +2019,7 @@ window.__recon = {state:state, merge:merge, parseFile:parseFile};
     var exp=el('button',{class:'dv-btn primary',type:'button',onclick:function(){exportRows(list);}, text:'Export '+list.length});
 
     var card=el('div',{class:'dv-card'});
-    card.appendChild(el('div',{class:'dv-bar'},[ el('div',{class:'tot'},[el('small',{text:'Total results'}),el('b',{text:list.length.toLocaleString()+' lines'})]), sSel, tSel, q, exp ]));
+    card.appendChild(el('div',{class:'dv-bar'},[ el('div',{class:'tot'},[el('small',{text:'Total results'}),el('b',{text:fmtCount(list.length)+(list.length===1?' line':' lines')})]), sSel, tSel, q, exp ]));
     if(selKeys.length){
       card.appendChild(el('div',{class:'dv-bulk'},[ el('span',{class:'sp',text:selKeys.length+' selected'}),
         el('button',{class:'dv-btn',type:'button',text:'Export selected',onclick:function(){exportRows(rows.filter(function(r){return dv.sel[r.key];}));}}),
