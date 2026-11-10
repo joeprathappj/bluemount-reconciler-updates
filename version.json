@@ -1,9 +1,9 @@
 {
   "version": "1.0.2",
-  "src": "647d11ed2a53",
-  "sha256": "de135f478f7c8d4a3e3ebfe14a83a6034073e23a8948b8c646d9fa67f43054d0",
-  "sig": "fi3XWqBIfdzmxpZyI57agi7pydk/2zczEI7Di9RJmdbsnDatSBcpf0J0u8wHN2Sxiw4eNcYxE7WYTpv1Z/xFoA==",
-  "file": "ui/v1.0.2-de135f47.html",
-  "bytes": 1268433,
-  "published": "2026-11-10T06:12:16.304Z"
+  "src": "2864110cd743",
+  "sha256": "8cfc709d7f23a2e827c851aa147f44520ceeac7b4175fad2b723a53f25a54f07",
+  "sig": "HZxBQnC4q3s3F5SORmc55+/y8+yN5dRKi05YPWClznINbyeA7sfPQV+MwgGoZ5/CjbBSmcfFLmV/StisvZKsFQ==",
+  "file": "ui/v1.0.2-8cfc709d.html",
+  "bytes": 1268617,
+  "published": "2026-11-10T06:18:21.912Z"
 }
